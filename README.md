@@ -1,4 +1,4 @@
-# Verifiable Random Function
+# Verifiable Random Function (VRF)
 
 A simple and self-contained Python 3 reference implementation of the
 [draft-irtf-cfrg-vrf-05](https://tools.ietf.org/html/draft-irtf-cfrg-vrf-05)
