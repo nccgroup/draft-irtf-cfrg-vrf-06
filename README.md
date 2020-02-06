@@ -1,24 +1,20 @@
-# Verifiable Random Functions
+# Verifiable Random Function
 
-A simple and self-contained Python3 reference implementation of
+A simple and self-contained Python3 reference implementation of the
 [draft-irtf-cfrg-vrf-05](https://tools.ietf.org/html/draft-irtf-cfrg-vrf-05)
-corresponding to the ECVRF-EDWARDS25519-SHA512-Elligator2 
+specification corresponding to the ECVRF-EDWARDS25519-SHA512-Elligator2 
 ciphersuite configuration. This code is suitable for demonstration, 
 exploration and the generation of test vectors to aid porting.
 Significant portions  of the lower-level ed25519-related operations 
-was directly adapted from that provided in Appendex A of
+were directly adapted from that provided in Appendex A of
 [RFC 8032](https://tools.ietf.org/html/rfc8032)
 
----
-
-**Please note:** This code is alpha-quality and not suitable for production.
-It is likely incomplete, inefficient, incorrect and/or insecure.
-
----
+> **Please note:** *This code is alpha-quality and not suitable for production.
+> It is likely incomplete, inefficient, incorrect and/or insecure.*
 
 The `ecvrf_edwards25519_sha512_elligator2.py` file retains a
-significant amount of documentation extracted from the specification,
-and provides a simple API as follows:
+significant amount of documentation extracted from the specification
+to aid in understanding, and provides a simple API as follows:
 
 ~~~python
 # Section 5.1. ECVRF Proving
