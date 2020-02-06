@@ -58,4 +58,4 @@ def ecvrf_verify(Y, pi_string, alpha_string):
 ...
 ~~~
 
-Copyright (c) 2020 NCC Group Plc
+Copyright (c) 2020 NCC Group Plc and provided under the MIT License.
