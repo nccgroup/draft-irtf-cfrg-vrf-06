@@ -10,8 +10,8 @@ were directly adapted from that provided in Appendex A of
 [RFC 8032](https://tools.ietf.org/html/rfc8032).
 
 > **Please note:** *This code is alpha-quality and not suitable for production.
-> While a limited testing infrastructure is provided, the code likely remains 
-> incomplete, inefficient, incorrect and/or insecure.*
+> While a limited testing infrastructure is provided, the code may be incomplete,
+> inefficient, incorrect and/or insecure.*
 
 The `ecvrf_edwards25519_sha512_elligator2.py` file retains a
 significant amount of documentation extracted from the specification
