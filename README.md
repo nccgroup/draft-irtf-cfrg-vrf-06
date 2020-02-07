@@ -6,8 +6,8 @@ specification corresponding to the ECVRF-EDWARDS25519-SHA512-Elligator2
 ciphersuite configuration. This code is suitable for demonstration, 
 exploration and the generation of test vectors to aid porting.
 Significant portions  of the lower-level ed25519-related operations 
-were directly adapted from that provided in Appendex A of
-[RFC 8032](https://tools.ietf.org/html/rfc8032).
+were directly adapted from those provided in [Bernstein's](https://ed25519.cr.yp.to/) 
+[ed25519.py sample](https://ed25519.cr.yp.to/python/ed25519.py).
 
 > **Please note:** *This code is alpha-quality and not suitable for production.
 > While a limited testing infrastructure is provided, the code may be incomplete,
@@ -19,10 +19,10 @@ to aid in understanding, and provides a simple API as follows:
 
 ~~~python
 # Section 5.1. ECVRF Proving
-def ecvrf_prove(SK, alpha_string):
+def ecvrf_prove(sk, alpha_string):
     """
     Input:
-        SK - VRF private key
+        sk - VRF private key
         alpha_string - input alpha, an octet string
     Output:
         pi_string - VRF proof, octet string of length ptLen+n+qLen
@@ -45,10 +45,10 @@ def ecvrf_proof_to_hash(pi_string):
 
 
 # Section 5.3. ECVRF Verifying
-def ecvrf_verify(Y, pi_string, alpha_string):
+def ecvrf_verify(y, pi_string, alpha_string):
     """
     Input:
-        Y - public key, an EC point
+        y - public key, an EC point
         pi_string - VRF proof, octet string of length ptLen+n+qLen
         alpha_string - VRF input, octet string
     Output:
@@ -58,4 +58,13 @@ def ecvrf_verify(Y, pi_string, alpha_string):
 ...
 ~~~
 
-Copyright (c) 2020 NCC Group Plc and provided under the MIT License.
+The code is sensitized to the presence of a `test_dict` in the `globals()` space.
+If present, the code asserts against values in the dict as well as samples those
+same values. This allows for checking intermediate calculations as well as generating
+test vectors to aid in porting. If the `test_dict` is not present, the code runs
+unhindered. Examples of this are in the testing file.
+
+All testcases are in `ecvrf_edwards25519_sha512_elligator2_test.py` and lifted
+verbatim from the specification.
+
+Copyright (c) 2020 NCC Group Plc; Provided under the MIT License.
