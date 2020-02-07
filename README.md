@@ -7,7 +7,7 @@ ciphersuite configuration. This code is suitable for demonstration,
 exploration and the generation of test vectors to aid porting.
 Significant portions  of the lower-level ed25519-related operations 
 were directly adapted from those provided in [Bernstein's](https://ed25519.cr.yp.to/) 
-[ed25519.py sample](https://ed25519.cr.yp.to/python/ed25519.py).
+sample [ed25519.py](https://ed25519.cr.yp.to/python/ed25519.py) code.
 
 > **Please note:** *This code is alpha-quality and not suitable for production.
 > While a limited testing infrastructure is provided, the code may be incomplete,
