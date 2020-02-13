@@ -15,7 +15,8 @@ sample [ed25519.py](https://ed25519.cr.yp.to/python/ed25519.py) code.
 
 The `ecvrf_edwards25519_sha512_elligator2.py` file retains a
 significant amount of documentation extracted from the specification
-to aid in understanding, and provides a simple API as follows:
+placed alongside the relevant code statements to aid in understanding.
+A very simpe API is provided as follows:
 
 ~~~python
 # Section 5.1. ECVRF Proving
