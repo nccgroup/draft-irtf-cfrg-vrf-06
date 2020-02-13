@@ -1,7 +1,7 @@
 # Verifiable Random Function (VRF)
 
 A simple and self-contained Python 3 reference implementation of the
-[draft-irtf-cfrg-vrf-05](https://tools.ietf.org/html/draft-irtf-cfrg-vrf-05)
+[draft-irtf-cfrg-vrf-06](https://tools.ietf.org/html/draft-irtf-cfrg-vrf-06)
 specification corresponding to the ECVRF-EDWARDS25519-SHA512-Elligator2 
 ciphersuite configuration. This code is suitable for demonstration, 
 exploration and the generation of test vectors to aid porting.
