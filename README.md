@@ -19,6 +19,7 @@ The `ecvrf_edwards25519_sha512_elligator2.py` file retains a
 significant amount of documentation extracted from the specification
 placed alongside each relevant code statement to aid in understanding.
 
+
 ## Quick start
 
 As the code has no dependencies beyond Python 3.7+, getting started is 
@@ -52,6 +53,7 @@ Here is an excerpt from `demo.py` showing example usage:
     result, beta_string2 = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(public_key, pi_string, alpha_string)
     if result == "VALID" and beta_string == beta_string2:
         print("Commitment verified")
+
 
 ## API
 
@@ -97,6 +99,7 @@ def ecvrf_verify(y, pi_string, alpha_string):
     """
 ...
 ~~~
+
 
 ## Testing
 

@@ -1,5 +1,6 @@
 # Copyright (C) 2020 Eric Schorn, NCC Group Plc; Provided under the MIT License
 
+import random  # Intentionally deterministic
 import sys
 
 if sys.version_info[0] != 3 or sys.version_info[1] < 7:
@@ -101,6 +102,32 @@ assert valid_result == "VALID"
 assert valid_beta == beta_result
 print("pass\n")
 
+
+
+##############
+# A few negative tests
+print("# Negative tests ...", end='')
+for index in range(5):
+    test_dict = dict()
+    ecvrf_edwards25519_sha512_elligator2.test_dict = test_dict
+    sk = random.getrandbits(256).to_bytes(32, 'little')
+    alpha_string = random.getrandbits(256).to_bytes(32, 'little')
+    Y = ecvrf_edwards25519_sha512_elligator2.get_public_key(sk)
+    pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
+    beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)
+    valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_string, alpha_string)
+    assert valid_beta == beta_string
+
+    bad_pi = bytearray(pi_string)
+    bad_pi[-1] = int(bad_pi[-1] ^ 0x01)
+    bad_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(bad_pi)
+    valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, bad_pi, alpha_string)
+    assert valid_result == "INVALID"
+    print(index, end='')
+print(" pass\n")
+
+
+
 ##############
 # The following code can be used to generate 'random' test vectors to aid porting, e.g.
 #
@@ -108,7 +135,6 @@ print("pass\n")
 # python3 random_test.py
 #
 
-import random  # Intentionally deterministic
 print("# The following values can be output to file then run")
 print("import ecvrf_edwards25519_sha512_elligator2, random")
 
@@ -128,7 +154,7 @@ for index in range(3):
 
     beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)
     valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_string, alpha_string)
-    if valid_beta != beta_string: print("FAIL")
+    assert valid_beta == beta_string
 
     keys = sorted(test_dict.keys())
     for key in keys:
@@ -138,6 +164,6 @@ for index in range(3):
     print("pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)")
     print("beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)")
     print("valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_string, alpha_string)")
-    print("if valid_beta != beta_string: print('FAIL')")
+    print("assert valid_beta == beta_string")
     print("print('test {} PASSED')".format(index))
     print("\n\n")

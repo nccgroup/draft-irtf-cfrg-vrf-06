@@ -1,8 +1,7 @@
 # Copyright (C) 2020 Eric Schorn, NCC Group Plc; Provided under the MIT license
 
-# ToDo
-#  1. General clean-up
-#  2. Negative testing
+# This code follows the (IETF) IRTF CFRG Verifiable Random Functions (VRFs) spec *very* closely.
+# Please refer to https://tools.ietf.org/pdf/draft-irtf-cfrg-vrf-06.pdf
 
 
 import hashlib
@@ -108,7 +107,7 @@ def ecvrf_verify(y, pi_string, alpha_string):
 
     # 2. If D is "INVALID", output "INVALID" and stop
     if d == "INVALID":
-        return "INVALID"
+        return "INVALID", []
 
     # 3. (Gamma, c, s) = D
     gamma, c, s = d
@@ -138,7 +137,7 @@ def ecvrf_verify(y, pi_string, alpha_string):
     if c == cp:
         return "VALID", ecvrf_proof_to_hash(pi_string)
     else:
-        return "INVALID"
+        return "INVALID", []
 
 
 def get_public_key(sk):
