@@ -116,7 +116,7 @@ for index in range(5):
     p_status, pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
     b_status, beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)
     valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_string, alpha_string)
-    assert p_status == "VALID" and b_status == "VALID" and valid_beta == beta_string
+    assert p_status == "VALID" and b_status == "VALID" and valid_result == "VALID" and valid_beta == beta_string
 
     bad_pi = bytearray(pi_string)
     bad_pi[-1] = int(bad_pi[-1] ^ 0x01)

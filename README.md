@@ -9,14 +9,14 @@ Significant portions of the lower-level ed25519-related operations
 were directly adapted from those provided in [Bernstein's](https://ed25519.cr.yp.to/) 
 sample [ed25519.py](https://ed25519.cr.yp.to/python/ed25519.py) code.
 
-> **Please note:** *This code is alpha-quality and is not suitable for 
+> **Please note:** This code is alpha-quality and is not suitable for 
 > production. While a limited testing infrastructure is provided, the 
 > code may be incomplete, inefficient, incorrect and/or insecure. 
 > Specifically, both the algorithms within the code and (the use of) 
 > Python's big integers are clearly not constant time and thus 
 > introduce timing side channels.
 >
-> The code has not undergone a security audit; use at your own risk.*
+> The code has not undergone a security audit; use at your own risk.
 
 The `ecvrf_edwards25519_sha512_elligator2.py` file retains a
 significant amount of documentation extracted from the specification
@@ -100,7 +100,7 @@ def ecvrf_verify(y, pi_string, alpha_string):
         alpha_string - VRF input, octet string
     Output:
         ("VALID", beta_string), where beta_string is the VRF hash output, octet string
-        of length hLen (64) bytes; or ("INVALID", [])
+        of length hLen (64) bytes; or ("INVALID", []) upon failure
     """
 ...
 ~~~

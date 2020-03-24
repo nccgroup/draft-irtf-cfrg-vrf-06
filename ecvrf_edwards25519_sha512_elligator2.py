@@ -106,7 +106,7 @@ def ecvrf_verify(y, pi_string, alpha_string):
         alpha_string - VRF input, octet string
     Output:
         ("VALID", beta_string), where beta_string is the VRF hash output, octet string
-        of length hLen (64) bytes; or ("INVALID", [])
+        of length hLen (64) bytes; or ("INVALID", []) upon failure
     """
     # Note that the API caller is expected to verify that the returned beta_string is the
     # expected one and this has a strong potential for mistakes/oversights (such as checking
@@ -356,7 +356,7 @@ def _assert_and_sample(keys, actuals):
 
 # Much of the following code has been adapted from ed25519.py at https://ed25519.cr.yp.to/software.html retrieved 27 Dec 2019
 # While it is gloriously inefficient, it provides an excellent demonstration of the underlying math. For example, production
-# code would avoid inversion via Fermat's little theorem as it is extremely expensive with a cost of ~300 field multiplies.
+# code would likely avoid inversion via Fermat's little theorem as it is extremely expensive with a cost of ~300 field multiplies.
 
 def _edwards_add(p, q):
     """Edwards curve point addition"""
@@ -375,7 +375,7 @@ def _encode_point(p):
 
 
 def _decode_point(s):
-    """Decode string containing LSB OF X and 254 bits of y into point. Checks on-curve"""
+    """Decode string containing LSB of X and 254 bits of y into point. Checks on-curve. May return \"INVALID\""""
     y = int.from_bytes(s, 'little') & ((1 << 255) - 1)
     x = _x_recover(y)
     if x & 1 != _get_bit(s, BITS - 1):
