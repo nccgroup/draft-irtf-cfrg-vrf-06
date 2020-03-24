@@ -32,10 +32,10 @@ test_dict['pi_string'] = bytes.fromhex('b6b4699f87d56126c9117a7da55bd0085246f4c5
 test_dict['beta_string'] = bytes.fromhex('5b49b554d05c0cd5a5325376b3387de59d924fd1e13ded44648ab33c21349a603f25b84ec5ed887995b33da5e3bfcb87cd2f64521c4c62cf825cffabbe5d31cc')
 ecvrf_edwards25519_sha512_elligator2.test_dict = test_dict
 
-pi_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
-assert pi_result == test_dict['pi_string']
-beta_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_result)
-assert beta_result == test_dict['beta_string']
+p_status, pi_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
+assert p_status == "VALID" and pi_result == test_dict['pi_string']
+b_status, beta_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_result)
+assert b_status == "VALID" and beta_result == test_dict['beta_string']
 Y = ecvrf_edwards25519_sha512_elligator2.get_public_key(sk)
 valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_result, alpha_string)
 assert valid_result == "VALID"
@@ -62,10 +62,10 @@ test_dict['pi_string'] = bytes.fromhex('ae5b66bdf04b4c010bfe32b2fc126ead2107b697
 test_dict['beta_string'] = bytes.fromhex('94f4487e1b2fec954309ef1289ecb2e15043a2461ecc7b2ae7d4470607ef82eb1cfa97d84991fe4a7bfdfd715606bc27e2967a6c557cfb5875879b671740b7d8')
 ecvrf_edwards25519_sha512_elligator2.test_dict = test_dict
 
-pi_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
-assert pi_result == test_dict['pi_string']
-beta_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_result)
-assert beta_result == test_dict['beta_string']
+p_status, pi_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
+assert p_status == "VALID" and pi_result == test_dict['pi_string']
+b_status, beta_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_result)
+assert b_status == "VALID" and beta_result == test_dict['beta_string']
 Y = ecvrf_edwards25519_sha512_elligator2.get_public_key(sk)
 valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_result, alpha_string)
 assert valid_result == "VALID"
@@ -92,10 +92,10 @@ test_dict['pi_string'] = bytes.fromhex('dfa2cba34b611cc8c833a6ea83b8eb1bb5e2ef2d
 test_dict['beta_string'] = bytes.fromhex('2031837f582cd17a9af9e0c7ef5a6540e3453ed894b62c293686ca3c1e319dde9d0aa489a4b59a9594fc2328bc3deff3c8a0929a369a72b1180a596e016b5ded')
 ecvrf_edwards25519_sha512_elligator2.test_dict = test_dict
 
-pi_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
-assert pi_result == test_dict['pi_string']
-beta_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_result)
-assert beta_result == test_dict['beta_string']
+p_status, pi_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
+assert p_status == "VALID" and pi_result == test_dict['pi_string']
+b_status, beta_result = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_result)
+assert b_status == "VALID" and beta_result == test_dict['beta_string']
 Y = ecvrf_edwards25519_sha512_elligator2.get_public_key(sk)
 valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_result, alpha_string)
 assert valid_result == "VALID"
@@ -113,10 +113,10 @@ for index in range(5):
     sk = random.getrandbits(256).to_bytes(32, 'little')
     alpha_string = random.getrandbits(256).to_bytes(32, 'little')
     Y = ecvrf_edwards25519_sha512_elligator2.get_public_key(sk)
-    pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
-    beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)
+    p_status, pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
+    b_status, beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)
     valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_string, alpha_string)
-    assert valid_beta == beta_string
+    assert p_status == "VALID" and b_status == "VALID" and valid_beta == beta_string
 
     bad_pi = bytearray(pi_string)
     bad_pi[-1] = int(bad_pi[-1] ^ 0x01)
@@ -150,20 +150,20 @@ for index in range(3):
     print("alpha_string = bytes.fromhex('{}')".format(alpha_string.hex()))
 
     Y = ecvrf_edwards25519_sha512_elligator2.get_public_key(sk)
-    pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
+    p_status, pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)
 
-    beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)
+    b_status, beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)
     valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_string, alpha_string)
-    assert valid_beta == beta_string
+    assert p_status == "VALID" and b_status == "VALID" and valid_beta == beta_string
 
     keys = sorted(test_dict.keys())
     for key in keys:
         print("test_dict['{}'] = bytes.fromhex('{}')".format(key.replace('_sample', ''), test_dict[key].hex()))
 
     print("\nY = ecvrf_edwards25519_sha512_elligator2.get_public_key(sk)")
-    print("pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)")
-    print("beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)")
+    print("p_status, pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(sk, alpha_string)")
+    print("b_status, beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)")
     print("valid_result, valid_beta = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(Y, pi_string, alpha_string)")
-    print("assert valid_beta == beta_string")
+    print("assert p_status == \"VALID\" and b_status == \"VALID\" and valid_beta == beta_string")
     print("print('test {} PASSED')".format(index))
     print("\n\n")

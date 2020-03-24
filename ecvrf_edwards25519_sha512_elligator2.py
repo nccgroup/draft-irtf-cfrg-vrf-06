@@ -21,7 +21,8 @@ def ecvrf_prove(sk, alpha_string):
         sk - VRF private key (32 bytes)
         alpha_string - input alpha, an octet string
     Output:
-        pi_string - VRF proof, octet string of length ptLen+n+qLen (80) bytes
+        ("VALID", pi_string) - where pi_string is the VRF proof, octet string of length ptLen+n+qLen
+        (80) bytes, or ("INVALID", []) upon failure
     """
     # 1. Use sk to derive the VRF secret scalar x and the VRF public key y = x*B
     secret_scalar_x = _get_secret_scalar(sk)
@@ -29,9 +30,13 @@ def ecvrf_prove(sk, alpha_string):
 
     # 2. H = ECVRF_hash_to_curve(suite_string, y, alpha_string)
     h = _ecvrf_hash_to_curve_elligator2_25519(SUITE_STRING, public_key_y, alpha_string)
+    if h == "INVALID":
+        return "INVALID", []
 
     # 3. h_string = point_to_string(H)
     h_string = _decode_point(h)
+    if h_string == "INVALID":
+        return "INVALID", []
 
     # 4. Gamma = x*H
     gamma = _scalar_multiply(p=h_string, e=secret_scalar_x)
@@ -56,7 +61,7 @@ def ecvrf_prove(sk, alpha_string):
                             _encode_point(k_b), _encode_point(k_h), pi_string])
 
     # 9. Output pi_string
-    return pi_string
+    return "VALID", pi_string
 
 
 # Section 5.2. ECVRF Proof To Hash
@@ -65,14 +70,15 @@ def ecvrf_proof_to_hash(pi_string):
     Input:
         pi_string - VRF proof, octet string of length ptLen+n+qLen (80) bytes
     Output:
-        "INVALID", or beta_string - VRF hash output, octet string of length hLen (64) bytes
+        ("VALID", beta_string) where beta_string is the VRF hash output, octet string
+        of length hLen (64) bytes, or ("INVALID", []) upon failure
     """
     # 1. D = ECVRF_decode_proof(pi_string)
     d = _ecvrf_decode_proof(pi_string)
 
     # 2. If D is "INVALID", output "INVALID" and stop
     if d == "INVALID":
-        return "INVALID"
+        return "INVALID", []
 
     # 3. (Gamma, c, s) = D
     gamma, c, s = d
@@ -88,7 +94,7 @@ def ecvrf_proof_to_hash(pi_string):
         _assert_and_sample(['beta_string'], [beta_string])
 
     # 6. Output beta_string
-    return beta_string
+    return "VALID", beta_string
 
 
 # Section 5.3. ECVRF Verifying
@@ -100,8 +106,13 @@ def ecvrf_verify(y, pi_string, alpha_string):
         alpha_string - VRF input, octet string
     Output:
         ("VALID", beta_string), where beta_string is the VRF hash output, octet string
-        of length hLen (64) bytes; or "INVALID"
+        of length hLen (64) bytes; or ("INVALID", [])
     """
+    # Note that the API caller is expected to verify that the returned beta_string is the
+    # expected one and this has a strong potential for mistakes/oversights (such as checking
+    # for "VALID" but not the actual value). Production code would be better served by
+    # passing in the expected beta_string and getting a simpler pass/fail in response.
+
     # 1. D = ECVRF_decode_proof(pi_string)
     d = _ecvrf_decode_proof(pi_string)
 
@@ -114,28 +125,34 @@ def ecvrf_verify(y, pi_string, alpha_string):
 
     # 4. H = ECVRF_hash_to_curve(suite_string, y, alpha_string)
     h = _ecvrf_hash_to_curve_elligator2_25519(SUITE_STRING, y, alpha_string)
+    if h == "INVALID":
+        return "INVALID", []
 
     # 5. U = s*B - c*y
+    y_point = _decode_point(y)
+    h_point = _decode_point(h)
+    if y_point == "INVALID" or h_point == "INVALID":
+        return "INVALID", []
     s_b = _scalar_multiply(p=BASE, e=s)
-    c_y = _scalar_multiply(p=_decode_point(y), e=c)
+    c_y = _scalar_multiply(p=y_point, e=c)
     nc_y = [PRIME - c_y[0], c_y[1]]
     u = _edwards_add(s_b, nc_y)
 
     # 6. V = s*H - c*Gamma
-    s_h = _scalar_multiply(p=_decode_point(h), e=s)
+    s_h = _scalar_multiply(p=h_point, e=s)
     c_g = _scalar_multiply(p=gamma, e=c)
     nc_g = [PRIME - c_g[0], c_g[1]]
     v = _edwards_add(nc_g, s_h)
 
     # 7. c’ = ECVRF_hash_points(H, Gamma, U, V)
-    cp = _ecvrf_hash_points(_decode_point(h), gamma, u, v)
+    cp = _ecvrf_hash_points(h_point, gamma, u, v)
 
     if 'test_dict' in globals():
         _assert_and_sample(['h', 'u', 'v'], [h, _encode_point(u), _encode_point(v)])
 
     # 8. If c and c’ are equal, output ("VALID", ECVRF_proof_to_hash(pi_string)); else output "INVALID"
     if c == cp:
-        return "VALID", ecvrf_proof_to_hash(pi_string)
+        return ecvrf_proof_to_hash(pi_string)  # Includes logic for VALID/INVALID
     else:
         return "INVALID", []
 
@@ -159,7 +176,7 @@ def _ecvrf_hash_to_curve_elligator2_25519(suite_string, y, alpha_string):
         alpha_string - value to be hashed, an octet string
         y - public key, an EC point as bytes
     Output:
-        H - hashed value, a finite EC point in G
+        H - hashed value, a finite EC point in G, or INVALID upon failure
     Fixed options:
         p = 2^255-19, the size of the finite field F, a prime, for edwards25519 and curve25519 curves
         A = 486662, Montgomery curve constant for curve25519
@@ -196,6 +213,8 @@ def _ecvrf_hash_to_curve_elligator2_25519(suite_string, y, alpha_string):
 
     # 11. If e is equal to 1 then final_u = u; else final_u = (-A - u) mod p (see note after item 16)
     final_u = (e * u + (e - 1) * A * TWO_INV) % PRIME
+    # Note that while the above formula makes some sense in a constant-time implementation, this
+    # implementation is not intended to be constant time. Thus it could be considerably simplified.
 
     # 12. y_coordinate = (final_u - 1) / (final_u + 1) mod p
     y_coordinate = (final_u - 1) * _inverse(final_u + 1) % PRIME
@@ -205,6 +224,8 @@ def _ecvrf_hash_to_curve_elligator2_25519(suite_string, y, alpha_string):
 
     # 14. H_prelim = string_to_point(h_string)
     h_prelim = _decode_point(y_string)
+    if h_prelim == "INVALID":
+        return "INVALID"
 
     # 15. Set H = cofactor * H_prelim
     h = _scalar_multiply(p=h_prelim, e=8)
@@ -287,6 +308,9 @@ def _ecvrf_decode_proof(pi_string):
         c - integer between 0 and 2^(8n)-1
         s - integer between 0 and 2^(8qLen)-1
     """
+    if len(pi_string) != 80:
+        return "INVALID"
+
     # 1. let gamma_string = pi_string[0]...p_string[ptLen-1]
     gamma_string = pi_string[0:32]
 
@@ -331,6 +355,8 @@ def _assert_and_sample(keys, actuals):
 
 
 # Much of the following code has been adapted from ed25519.py at https://ed25519.cr.yp.to/software.html retrieved 27 Dec 2019
+# While it is gloriously inefficient, it provides an excellent demonstration of the underlying math. For example, production
+# code would avoid inversion via Fermat's little theorem as it is extremely expensive with a cost of ~300 field multiplies.
 
 def _edwards_add(p, q):
     """Edwards curve point addition"""
@@ -356,7 +382,7 @@ def _decode_point(s):
         x = PRIME - x
     p = [x, y]
     if not _is_on_curve(p):
-        raise Exception("decoding point that is not on curve")
+        return "INVALID"
     return p
 
 

@@ -11,9 +11,12 @@ sample [ed25519.py](https://ed25519.cr.yp.to/python/ed25519.py) code.
 
 > **Please note:** *This code is alpha-quality and is not suitable for 
 > production. While a limited testing infrastructure is provided, the 
-> code may be incomplete, inefficient, incorrect and/or insecure. The
-> code has not undergone a security audit and known side-channels exist. 
-> Use at your own risk.*
+> code may be incomplete, inefficient, incorrect and/or insecure. 
+> Specifically, both the algorithms within the code and (the use of) 
+> Python's big integers are clearly not constant time and thus 
+> introduce timing side channels.
+>
+> The code has not undergone a security audit; use at your own risk.*
 
 The `ecvrf_edwards25519_sha512_elligator2.py` file retains a
 significant amount of documentation extracted from the specification
@@ -64,10 +67,11 @@ A very simple API is provided as follows:
 def ecvrf_prove(sk, alpha_string):
     """
     Input:
-        sk - VRF private key
+        sk - VRF private key (32 bytes)
         alpha_string - input alpha, an octet string
     Output:
-        pi_string - VRF proof, octet string of length ptLen+n+qLen
+        ("VALID", pi_string) - where pi_string is the VRF proof, octet string of length ptLen+n+qLen
+        (80) bytes, or ("INVALID", []) upon failure
     """
 ...
 
@@ -76,9 +80,10 @@ def ecvrf_prove(sk, alpha_string):
 def ecvrf_proof_to_hash(pi_string):
     """
     Input:
-        pi_string - VRF proof, octet string of length ptLen+n+qLen
+        pi_string - VRF proof, octet string of length ptLen+n+qLen (80) bytes
     Output:
-        "INVALID", or beta_string - VRF hash output, octet string of length hLen
+        ("VALID", beta_string) where beta_string is the VRF hash output, octet string
+        of length hLen (64) bytes, or ("INVALID", []) upon failure
     Important note:
         ECVRF_proof_to_hash should be run only on pi_string that is known to have been
         produced by ECVRF_prove, or from within ECVRF_verify as specified in Section 5.3.
@@ -90,12 +95,12 @@ def ecvrf_proof_to_hash(pi_string):
 def ecvrf_verify(y, pi_string, alpha_string):
     """
     Input:
-        y - public key, an EC point
-        pi_string - VRF proof, octet string of length ptLen+n+qLen
+        y - public key, an EC point as bytes
+        pi_string - VRF proof, octet string of length ptLen+n+qLen (80) bytes
         alpha_string - VRF input, octet string
     Output:
         ("VALID", beta_string), where beta_string is the VRF hash output, octet string
-        of length hLen; or "INVALID"
+        of length hLen (64) bytes; or ("INVALID", [])
     """
 ...
 ~~~
