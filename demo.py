@@ -17,8 +17,8 @@ public_key = ecvrf_edwards25519_sha512_elligator2.get_public_key(secret_key)
 
 # Alice generates a beta_string commitment to share with Bob
 alpha_string = b'I bid $100 for the horse named IntegrityChain'
-pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(secret_key, alpha_string)
-beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)
+p_status, pi_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_prove(secret_key, alpha_string)
+b_status, beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string)
 
 #
 # Alice initially shares ONLY the beta_string with Bob
@@ -26,5 +26,5 @@ beta_string = ecvrf_edwards25519_sha512_elligator2.ecvrf_proof_to_hash(pi_string
 
 # Later, Bob validates Alice's subsequently shared public_key, pi_string, and alpha_string
 result, beta_string2 = ecvrf_edwards25519_sha512_elligator2.ecvrf_verify(public_key, pi_string, alpha_string)
-if result == "VALID" and beta_string == beta_string2:
+if p_status == "VALID" and b_status == "VALID" and result == "VALID" and beta_string == beta_string2:
     print("Commitment verified")
