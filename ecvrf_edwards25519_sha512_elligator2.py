@@ -87,7 +87,7 @@ def ecvrf_proof_to_hash(pi_string):
     three_string = bytes([0x03])
 
     # 5. beta_string = Hash(suite_string || three_string || point_to_string(cofactor * Gamma))
-    cofactor_gamma = _scalar_multiply(p=gamma, e=8)
+    cofactor_gamma = _scalar_multiply(p=gamma, e=COFACTOR)  # Curve cofactor
     beta_string = _hash(SUITE_STRING + three_string + _encode_point(cofactor_gamma))
 
     if 'test_dict' in globals():
@@ -194,7 +194,7 @@ def _ecvrf_hash_to_curve_elligator2_25519(suite_string, y, alpha_string):
     r_string = bytearray(hash_string[0:32])
 
     # 5. oneTwentySeven_string = 0x7F = int_to_string(127, 1) (a single octet with value 127)
-    one_twenty_seven_string = 0x7f
+    one_twenty_seven_string = 0x7f  # Note: '&' wants an int, not a byte
 
     # 6. r_string[31] = r_string[31] & oneTwentySeven_string (this step clears the high-order bit of octet 31)
     r_string[31] = int(r_string[31] & one_twenty_seven_string)
@@ -228,7 +228,7 @@ def _ecvrf_hash_to_curve_elligator2_25519(suite_string, y, alpha_string):
         return "INVALID"
 
     # 15. Set H = cofactor * H_prelim
-    h = _scalar_multiply(p=h_prelim, e=8)
+    h = _scalar_multiply(p=h_prelim, e=COFACTOR)  # Curve cofactor
 
     # 16. Output H
     h_point = _encode_point(h)
@@ -308,7 +308,7 @@ def _ecvrf_decode_proof(pi_string):
         c - integer between 0 and 2^(8n)-1
         s - integer between 0 and 2^(8qLen)-1
     """
-    if len(pi_string) != 80:
+    if len(pi_string) != 80:  # ptLen+n+qLen octets = 32+16+32 = 80
         return "INVALID"
 
     # 1. let gamma_string = pi_string[0]...p_string[ptLen-1]
@@ -448,6 +448,7 @@ SUITE_STRING = bytes([0x04])
 BITS = 256
 PRIME = 2 ** 255 - 19
 ORDER = 2 ** 252 + 27742317777372353535851937790883648493
+COFACTOR = 8
 TWO_INV = _inverse(2)
 II = pow(2, (PRIME - 1) // 4, PRIME)
 A = 486662
